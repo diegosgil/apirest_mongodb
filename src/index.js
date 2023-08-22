@@ -1,16 +1,19 @@
 //Conectamos nuestro servidor
 const express = require("express");
 const mongoose = require("mongoose");
-require("dotenv").config();
+const dotenv = require("dotenv");
+dotenv.config();
 
 const libroRoutes = require("./routes/libro.routes")
+const facturaRoutes = require("./routes/factura.routes")
 
 const app = express();
 const port = process.env.PORT || 9000; 
 
 //middleware
 app.use(express.json());
-app.use('/', libroRoutes);
+app.use('/apilibro', libroRoutes);
+app.use('/apifactura', facturaRoutes);
 
 
 //Routes
@@ -20,7 +23,7 @@ app.get('/', (req, res) => {
 
 //Conexion mongodb
 mongoose
-    .connect(process.env.MONGODB_URI)
+    .connect(process.env.MONGODB_URI_LIBRO)
     .then(() => console.log("Conectado a MongoDB Atlas"))
     .catch((error) => console.error(error));
 
