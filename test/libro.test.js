@@ -1,21 +1,51 @@
-const supertest = require('supertest');
+const request = require('supertest');
 const express = require('express');
-const bodyParser = require('body-parser');
-const libroRoutes = require('../src/routes/libro.routes'); // Asegúrate de que esta ruta sea correcta
+
+// Mockea el modelo de mongoose antes de importar las rutas
+const mockLibroModel = {
+  create: jest.fn(),
+  find: jest.fn(),
+  // Agrega más funciones de mongoose que quieras simular
+};
+
+jest.mock('../src/models/libro.model', () => mockLibroModel);
+
+const libroRoutes = require('../src/routes/libro.routes'); // Importa después de la configuración de los mocks
 
 const app = express();
-app.use(bodyParser.json());
-app.use('/', libroRoutes);
 
-const request = supertest(app);
+app.use(express.json());
+app.use('/apilibro', libroRoutes);
+const findResponse = require('./data')
+describe('Libro Routes', () => {
 
-describe('Libro Routes Tests', () => {
-  it('GET /libro should return a list of libros', async () => {
-    jest.setTimeout(10000);
-    const response = await request.get('/libro');
+  it('should get all libros', async () => {
+    mockLibroModel.find.mockResolvedValue(findResponse);
 
-    expect(response.status).toBe(200);
-    expect(Array.isArray(response.body)).toBe(true); // Verifica que la respuesta sea un arreglo
-    // Verifica otros aspectos de la respuesta según tus necesidades
+    const response = await request(app).get('/apilibro/libro');
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toEqual(findResponse);
   });
+
+
+  const createResponse = {
+    _id: '123456789',
+    titulo: 'Test Libro',
+    autor: 'Test Autor',
+    paginas: 200,
+    editorial: 'Test Editorial',
+  };
+
+  it('Should fail to create a Libro', async () => {
+    mockLibroModel.create.mockResolvedValue(createResponse);
+
+    const response = await request(app)
+      .post('/apilibro/libro')
+      .send({ titulo: 'Test Libro', autor: 'Test Autor', paginas: 200, editorial: 'Test Editorial' });
+
+    expect(response.statusCode).toBe(500);
+ 
+  });
+  // Resto de las pruebas
 });
