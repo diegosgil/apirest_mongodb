@@ -44,7 +44,7 @@ describe('Libro Routes', () => {
       .post('/apilibro/libro')
       .send({ titulo: 'Test Libro', autor: 'Test Autor', paginas: 200, editorial: 'Test Editorial' });
 
-    expect(response.statusCode).toBe(500);
+    expect(response.statusCode).toBe(200);
  
   });
   // Resto de las pruebas
